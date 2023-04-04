@@ -1,0 +1,42 @@
+Problema 1
+b = c(46, 33, 39, 37, 46, 30, 48, 32, 49, 35, 30, 48)
+max_val = max(b)
+min_val = min(b)
+sum_totala = sum(b)
+media_aritmetica= sum_totala/ lenght(b)
+raport = min_val/max_val
+nr_val_mai_mari_40 = sum(x >= 40)
+procent = mean( x < 40 )*100
+
+
+Problema 4
+binom_plot <- function(n, p) {
+  x <- 0:n 
+  prob <- dbinom(x, n, p) 
+  barplot(prob, names.arg = x, xlab = "x", ylab = "P(X = x)", main = "Densitatea binomială") 
+}
+
+binom_plot(18, 0.25)
+binom_plot(40, 0.5)
+binom_plot(30, 0.8)
+
+
+Problema 9
+fmrp_geometrica <- function(p, n){
+  prob <- dgeom(0:n, prob=p)
+  barplot(prob, names.arg=0:n, main="FMP a Distribuției Geometrice",
+          xlab="Numărul de încercări până la primul succes", ylab="Probabilitatea")
+}
+
+pmf_geometric(p=0.2, n=30)
+
+
+Problema 10
+poisson_distribution <- function(lambda, n) {
+  probabilities <- dpois(x = 0:n, lambda = lambda)
+  barplot(probabilities, names.arg = 0:n, xlab = "n", ylab = "P(X = n)",
+          main = paste0("Poisson Distribution with λ = ", lambda))
+}
+
+poisson_distribution(lambda = 3, n = 20)
+
