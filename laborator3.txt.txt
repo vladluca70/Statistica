@@ -1,0 +1,89 @@
+#Problema I.1.
+densitate_normala <- function(media, deviatia, x_min, x_max) {
+  x <- seq(x_min, x_max, length.out = 1000) # crearea unui vector de 1000 de puncte între x_min și x_max
+  y <- dnorm(x, mean = media, sd = deviatia) # calculul densității probabilității pentru fiecare punct din x
+  plot(x, y, type = "l", xlab = "x", ylab = "Densitatea probabilitatii", main = "Distributia normala") # reprezentarea grafică a densităților
+}
+densitate_normala(media = 0, deviatia = 1, x_min = -4, x_max = 4)
+
+
+#Problema II.2.
+LNM_Student <- function(n, r) 
+{
+  X <- rt(n, r)
+  sample_mean <- mean(X)
+  sample_sd <- sd(X)
+  upper_limit <- 1.96 * (sample_sd / sqrt(n))
+  lower_limit <- -1.96 * (sample_sd / sqrt(n))
+  if (sample_mean >= lower_limit && sample_mean <= upper_limit) 
+ {
+    return("LNM a fost verificata.")
+  } 
+   else 
+  {
+    return("LNM nu a fost verificata.")
+  }
+}
+
+n_values <- c(1000, 10000, 100000, 1000000)
+r_values <- c(2, 3, 4, 5)
+for (n in n_values) 
+{
+  for (r in r_values) 
+ {
+    cat(paste0("n = ", n, ", r = ", r, ": "))
+    cat(LNM_Student(n, r), "\n")
+  }
+}
+
+#Problema III.2.
+verify_CLT <- function(alpha, lambda, n, N, z) {
+  sample_means <- replicate(N, sum(rgamma(n, alpha, lambda)))
+  
+  sample_mean <- mean(sample_means)
+  sample_var <- var(sample_means)
+  
+  theory_mean <- n * alpha / lambda
+  theory_var <- n * alpha / lambda^2
+  
+  theory_mean_sample <- theory_mean
+  theory_sd_sample <- sqrt(theory_var / n)
+  
+  z_score <- (sample_mean - theory_mean_sample) / theory_sd_sample
+  
+  if (z == -1.5) {
+    alpha <- 0.06681
+  } else if (z == 0) {
+    alpha <- 0.5
+  } else {
+    alpha <- 0.93319
+  }
+  critical_value <- qnorm(alpha, lower.tail = FALSE)
+  
+  is_within_interval <- abs(z_score) <= critical_value
+  
+  cat("Sample mean:", sample_mean, "\n")
+  cat("Sample variance:", sample_var, "\n")
+  cat("Theory mean:", theory_mean, "\n")
+  cat("Theory variance:", theory_var, "\n")
+  cat("Theory mean of sample means:", theory_mean_sample, "\n")
+  cat("Theory sd of sample means:", theory_sd_sample, "\n")
+  cat("Z-score:", z_score, "\n")
+  cat("Critical value:", critical_value, "\n")
+  cat("Is within interval:", is_within_interval, "\n")
+}
+verify_CLT(alpha = 2, lambda = 1, n = 50, N = 5000, z = -1.5)
+verify_CLT(alpha = 2, lambda = 1, n = 50, N = 10000, z = 0)
+
+#Problema IV.2.
+p_binom_gt_k <- function(k, n, p) 
+{
+  return(1 - pbinom(k, n, p))
+}
+n <- 10
+p <- 0.5
+for (k in 0:(n-1)) 
+{
+  p_gt_k <- p_binom_gt_k(k, n, p)
+  print(paste("P(X >", k, ") =", round(p_gt_k, 4)))
+}
