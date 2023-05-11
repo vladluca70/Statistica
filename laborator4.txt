@@ -1,0 +1,105 @@
+###########Problema I.2.##############
+x <- runif(10000, 0, 2)
+y <- -2*x^2 + 5*x - 2
+num_puncte_sub_axa <- sum(y < 0)
+estimare_aria <- (num_puncte_sub_axa / length(x)) * 4
+functie_parabola <- function(x) -2*x^2 + 5*x - 2
+arie_exacta <- integrate(functie_parabola, 0, 2)$value
+eroare_relativa <- abs(estimare_aria - arie_exacta) / arie_exacta
+
+
+##############Problema II.2.#############
+N <- 50000
+lambda <- 3
+random_values <- rexp(N, lambda)
+f <- function(u) exp(-2*(u^2))
+values_f <- f(random_values)
+integrala_estimata <- mean(values_f) * Inf
+valoare_exacta <- sqrt(pi/8)
+eroare_relativa <- abs(integrala_estimata - valoare_exacta) / valoare_exacta
+
+
+##########Problema III.2.############
+lambda1 <- 4  # Parametrul λ pentru primul mecanic
+lambda2 <- 12  # Parametrul λ pentru al doilea mecanic
+probabilitate_primul_mecanic <- 3/4
+probabilitate_al_doilea_mecanic <- 1/4
+nr_clienti_primul_mecanic <- rpois(1, probabilitate_primul_mecanic * N)
+nr_clienti_al_doilea_mecanic <- rpois(1, probabilitate_al_doilea_mecanic * N)
+timp_servire_primul_mecanic <- rexp(nr_clienti_primul_mecanic, lambda1)
+timp_servire_al_doilea_mecanic <- rexp(nr_clienti_al_doilea_mecanic, lambda2)
+media_timp_servire_primul_mecanic <- mean(timp_servire_primul_mecanic)
+media_timp_servire_al_doilea_mecanic <- mean(timp_servire_al_doilea_mecanic)
+
+
+#############Problema IV.2. a)############
+nr_zile <- 10000  # Numărul de zile pentru simulare
+nr_computere <- 40  # Numărul total de computere
+probabilitate_infectare <- 0.2  # Probabilitatea de infectare între calculatoare
+infectate_toate_computerele <- 0
+for (i in 1:nr_zile) {
+  infectate <- rep(0, nr_computere)
+  infectate[1] <- 1  # Primul computer este infectat
+
+  while (sum(infectate) < nr_computere) {
+    for (j in 1:nr_computere) {
+      if (infectate[j] == 1) {
+        infectate[sample(setdiff(1:nr_computere, j), 1)] <- 1
+      }
+    }
+  }
+
+  if (sum(infectate) == nr_computere) {
+    infectate_toate_computerele <- infectate_toate_computerele + 1
+  }
+}
+
+probabilitate_a <- infectate_toate_computerele / nr_zile
+
+
+###############Problema IV.2. b)################
+infectate_cel_putin_15_computere <- 0
+
+for (i in 1:nr_zile) {
+  infectate <- rep(0, nr_computere)
+  infectate[1] <- 1  # Primul computer este infectat
+
+  while (sum(infectate) < 15) {
+    for (j in 1:nr_computere) {
+      if (infectate[j] == 1) {
+        infectate[sample(setdiff(1:nr_computere, j), 1)] <- 1
+      }
+    }
+  }
+
+  if (sum(infectate) >= 15) {
+    infectate_cel_putin_15_computere <- infectate_cel_putin_15_computere + 1
+  }
+}
+
+probabilitate_b <- infectate_cel_putin_15_computere / nr_zile
+
+
+############Problema IV.2. c)################
+eroare <- 0.01
+probabilitate_c <- 0
+nr_simulari <- 0
+
+while (TRUE) {
+  infectate <- rep(0, nr_computere)
+  infectate[1] <- 1  # Primul computer este infectat
+  k <- 10  # Numărul de computere tratate în fiecare zi
+
+  for (i in 2:nr_computere) {
+    infectate[i] <- rbinom(1, infectate[i - 1], probabilitate_infectare)
+  }
+
+  zi <- 1
+
+  while (sum(infectate) > 0) {
+    tratate <- min(k, sum(infectate))
+    infectate[sample(which(infectate == 1), tratate)] <- 0
+    zi <- zi + 1
+  }
+
+
