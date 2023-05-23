@@ -1,17 +1,25 @@
-simulare_variabila_aleatoare_finita <- function(valori, probabilitati) 
-{
-  u <- runif(1)
-  acumulata <- 0
-  for (i in 1:length(probabilitati)) 
-  {
-    acumulata <- acumulata + probabilitati[i]
-    if (u < acumulata) 
-    {
-      return(valori[i])
-    }
-  }
-}
-valori <- c("x1", "x2", "x3")
-probabilitati <- c(0.2, 0.3, 0.5)
+# Numărul total de componente testate
+n <- 150
 
-simulare_variabila_aleatoare_finita(valori, probabilitati)
+# Numărul de componente defecte
+defecte <- 20
+
+# Procentul estimat de componente defecte în esantion
+procent_estimat <- defecte / n
+
+# Procentul ipotetic de componente defecte
+procent_h0 <- 0.10
+
+# Calcularea valorii p
+p_value <- pbinom(defecte, n, procent_h0, lower.tail = FALSE)
+p_value
+
+#Testarea ipotezei
+# Compararea valorii p cu nivelul de semnificație
+nivel_sem <- 0.05
+
+if (p_value < nivel_sem) {
+  print("Respinge ipoteza nulă")
+} else {
+  print("Nu respinge ipoteza nulă")
+}
