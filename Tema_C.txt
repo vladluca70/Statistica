@@ -1,0 +1,235 @@
+C1
+# functie ce estimeaza volumul corpului
+monte_carlo_volume <- function(a, n_samples) {
+  count <- 0
+  total <- n_samples
+  
+  # generare puncte random in interval
+  x1 <- runif(n_samples, -sqrt(a), sqrt(a))
+  x2 <- runif(n_samples, -sqrt(a), sqrt(a))
+  x3 <- runif(n_samples, 0, a)
+  
+  # verific daca punctele sunt in interval
+  for (i in 1:n_samples) {
+    if (x3[i] >= x1[i]^2 + x2[i]^2) {
+      count <- count + 1
+    }
+  }
+  
+  # calcularea estimrii volumului
+  volume <- count / total * (2 * sqrt(a))^2 * a
+  
+  return(volume)
+}
+
+# valori de a si dimensiuni ale esantionului
+a_values <- c(2, 4, 10)
+sample_sizes <- c(10000, 20000, 50000)
+
+# calcularea estimarilor volumelor si erorilor relative
+for (a in a_values) {
+  cat("Pentru a =", a, ":\n")
+  exact_volume <- pi * (a^2) / 2
+  cat("Volumul exact:", exact_volume, "\n")
+  
+  for (n_samples in sample_sizes) {
+    estimated_volume <- monte_carlo_volume(a, n_samples)
+    relative_error <- abs(estimated_volume - exact_volume) / exact_volume * 100
+    
+    cat("Eșantion:", n_samples, " - Volum estimat:", estimated_volume, " - Eroare relativă:", relative_error, "%\n")
+  }
+  cat("\n")
+}
+
+
+C2
+#definire patrulater
+T <- function(x, y) {
+  x >= 0 & y >= 0 & 3*y <= x + 6 & y <= 12 - 3*x
+}
+#coordonate
+a <- 0
+b <- 6
+c <- 0
+d <- 4
+
+#generez puncte random in interiorul dreptunghiului
+generate_points <- function(n) {
+  x <- runif(n, a, b)
+  y <- runif(n, c, d)
+  data.frame(x, y)
+}
+
+#esantion
+n <- 20000
+points <- generate_points(n)
+
+#verificare pt puncte
+inside_points <- points[T(points$x, points$y), ]
+
+estimated_area <- (b - a) * (d - c) * nrow(inside_points) / n
+print(estimated_area)
+
+
+C3. a)
+f <- function(x) {
+  (x + 1) / sqrt(4 - x^2)
+}
+
+a <- -1
+b <- 1
+
+n <- 1000 #nr de pct pt aproximarea integralei
+
+h <- (b - a) / n latime pt subinterval
+
+suma <- 0
+
+# calculare suma pt fiecare subinterval
+for (i in 1:n) {
+  x0 <- a + (i - 1) * h
+  x1 <- a + i * h
+  suma <- suma + (f(x0) + f(x1)) * h / 2
+}
+
+# rezultat aproximativ
+print(suma)
+
+# comparare rezultate
+valoare_exacta <- pi / 3
+eroare_absoluta <- abs(suma - valoare_exacta)
+print(eroare_absoluta)
+
+
+C3. b)
+f <- function(x) {
+  1 / (4 + x^2)
+}
+a <- -Inf #limite de integrare
+b <- 0
+
+valoare_exacta <- pi / 4
+
+rezultat <- integrate(f, a, b)$value
+eroare_absoluta <- abs(rezultat - valoare_exacta)
+
+print(rezultat)
+
+print(eroare_absoluta)
+
+
+C3. c)
+f <- function(x) {
+  x * exp(x)
+}
+a <- -Inf
+b <- 0
+
+valoare_exacta <- -1
+
+rezultat <- integrate(f, a, b)$value
+eroare_absoluta <- abs(rezultat - valoare_exacta)
+
+print(rezultat)
+
+print(eroare_absoluta)
+
+
+C4. a)
+n <- 1000  # nr total de conturi false initial
+p <- 0.2   # probabilitatea de adaugare a unui nou cont fals în fiecare zi
+q <- 0.8   # probabilitatea de dezactivare a unui cont fals în fiecare zi
+
+# estimare nr zile
+estimate_days <- function(n, p, q) {
+  m <- n  
+  days <- 0 
+  
+  while (m > 0) {
+    new_accounts <- rbinom(1, n, p)  # nr de conturi false noi adaugate in ziua curenta
+    deactivated_accounts <- rbinom(1, new_accounts, q)  # nr de conturi false dezactivate în ziua curenta
+    
+    m <- m + new_accounts - deactivated_accounts  # actualizare nr total de conturi false
+    days <- days + 1  # actualizarea nr de zile trecute
+  }
+  
+  return(days)
+}
+
+# Estimarea nr mediu de zile necesare
+average_days <- estimate_days(n, p, q)
+print(average_days)
+
+C4. b)
+m <- 100000
+n <- 40
+p <- 0.2
+q <- 0.8
+
+num_simulations <- 10000
+
+# functie pt simularea unui singur scenariu
+simulate_scenario <- function() {
+  num_false_accounts <- m
+  for (i in 1:n) {
+    # nr de conturi false adaugate in ziua i
+    num_new_false_accounts <- rbinom(1, num_false_accounts, p)
+    
+    # nr de conturi false dezactivate in ziua i
+    num_deactivated_false_accounts <- rbinom(1, num_false_accounts, q)
+    
+    # actualizarea nr total de conturi false
+    num_false_accounts <- num_false_accounts + num_new_false_accounts - num_deactivated_false_accounts
+    
+    # verificam daca nr de conturi false este sub limita de 50000
+    if (num_false_accounts <= 50000) {
+      return(TRUE) 
+    }
+  }
+  return(FALSE) 
+}
+
+num_successful_scenarios <- sum(replicate(num_simulations, simulate_scenario()))
+probability <- num_successful_scenarios / num_simulations
+
+cat("Probabilitatea ca după", n, "zile să mai existe cel mult 50000 de conturi false este:", probability, "\n")
+
+
+C4. c)
+m <- 100000
+n <- 40
+p <- 0.2
+q <- 0.8
+num_simulations <- 10000
+
+# functie pt simularea unui singur scenariu
+simulate_scenario <- function() {
+  num_false_accounts <- m
+  for (i in 1:n) {
+    # nr de conturi false adaugate in ziua i
+    num_new_false_accounts <- rbinom(1, num_false_accounts, p)
+    
+    # nr de conturi false dezactivate in ziua i
+    num_deactivated_false_accounts <- rbinom(1, num_false_accounts, q)
+    
+    # actualizare nr total de conturi false
+    num_false_accounts <- num_false_accounts + num_new_false_accounts - num_deactivated_false_accounts
+    
+    # verificam daca nr de conturi false este sub limita de 50000
+    if (num_false_accounts <= 50000) {
+      return(TRUE) 
+    }
+  }
+  return(FALSE)
+}
+
+num_successful_scenarios <- sum(replicate(num_simulations, simulate_scenario()))
+probability <- num_successful_scenarios / num_simulations
+
+# calculul intervalului de incredere
+z <- qnorm(0.995) 
+margin_of_error <- z * sqrt(probability * (1 - probability) / num_simulations)
+confidence_interval <- c(probability - margin_of_error, probability + margin_of_error)
+
+cat("Probabilitatea ca după", n, "zile să mai existe cel mult 50000 de conturi false, cu o eroare de ±0.01 și o probabilitate de acoperire de 0.99, este:", probability, "\n")
+cat("Intervalul de încredere:", confidence_interval, "\n")
