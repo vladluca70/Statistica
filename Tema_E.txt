@@ -1,0 +1,79 @@
+E1
+calculeaza_intervale_incredere <- function(media, deviatia_standard, n) {
+  niveluri_incredere <- c(0.9, 0.95, 0.99)  # Nivelurile de încredere dorite
+  
+  intervale_incredere <- list()
+  
+  for (nivel in niveluri_incredere) {
+    eroare <- qnorm((1 + nivel) / 2) * deviatia_standard / sqrt(n)  # calculam eroarea in functie de nivelul de incredere
+    
+    interval_incredere <- c(media - eroare, media + eroare)  # Construim intervalul de incredere
+    
+    intervale_incredere[[as.character(nivel)]] <- interval_incredere  # Adaugam intervalul de incredere la lista rezultatelor
+  }
+  
+  return(intervale_incredere)
+}
+
+#utilizare functie
+media <- 138  
+deviatia_standard <- 11 
+n <- 10 
+
+intervale <- calculeaza_intervale_incredere(media, deviatia_standard, n)
+
+# Afișăm intervalele de încredere pentru fiecare nivel dorit
+for (nivel in names(intervale)) {
+  cat("Intervalul de încredere de", nivel, "este:", intervale[[nivel]], "\n")
+}
+
+
+E2
+calculeaza_interval_incredere <- function(media_esantion, dispersie_esantion, marime_esantion) {
+  nivel_incredere <- 0.95  # level de incredere dorit
+  
+  eroare <- qnorm((1 + nivel_incredere) / 2) * sqrt(dispersie_esantion / marime_esantion)  # calculare eroare in functie de nivelul de incredere
+  
+  interval_incredere <- c(media_esantion - eroare, media_esantion + eroare)  # construire interval de incredere
+  
+  return(interval_incredere)
+}
+
+E3
+n_total <- 153  
+n_nemultumiti <- 17  
+p_anterior <- 0.12
+
+#test de ipoteza pt nivelul 1%
+alpha <- 0.01 
+
+n_nemultumiti_asteptat <- n_total * p_anterior
+
+test_result_1 <- prop.test(n_nemultumiti, n_total, p = p_anterior, alternative = "less", conf.level = 1 - alpha)
+
+# verificare rezultat test
+if (test_result_1$p.value < alpha) {
+  conclusion_1 <- "Putem respinge ipoteza nulă la nivelul de semnificație de 1%. Există o diferență semnificativă în proporția de clienți nemulțumiți."
+} else {
+  conclusion_1 <- "Nu putem respinge ipoteza nulă la nivelul de semnificație de 1%. Nu există suficiente dovezi că schimbarea a avut un impact semnificativ."
+}
+
+# test de ipotez pentru nivelul 5%
+alpha <- 0.05
+
+test_result_5 <- prop.test(n_nemultumiti, n_total, p = p_anterior, alternative = "less", conf.level = 1 - alpha)
+
+# Verificarea rezultatului testului
+if (test_result_5$p.value < alpha) {
+  conclusion_5 <- "Putem respinge ipoteza nulă la nivelul de semnificație de 5%. Există o diferență semnificativă în proporția de clienți nemulțumiți."
+} else {
+  conclusion_5 <- "Nu putem respinge ipoteza nulă la nivelul de semnificație de 5%. Nu există suficiente dovezi că schimbarea a avut un impact semnificativ."
+}
+
+cat("Rezultate la nivelul de semnificație de 1%:\n")
+print(test_result_1)
+cat(conclusion_1, "\n\n")
+
+cat("Rezultate la nivelul de semnificație de 5%:\n")
+print(test_result_5)
+cat(conclusion_5)
