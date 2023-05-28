@@ -1,0 +1,173 @@
+A1. a)
+library(ggplot2)
+
+#funcția de masă de probabilitate pentru distribuția Poisson
+poisson_pmf <- function(lambda, k) {
+  return((lambda^k) * exp(-lambda) / factorial(k))
+}
+
+#funcția de masă de probabilitate pentru distribuția Geometrică
+geometric_pmf <- function(p, k) {
+  return((1 - p)^(k - 1) * p)
+}
+
+#funcția de masă de probabilitate pentru distribuția Binomială
+binomial_pmf <- function(n, p, k) {
+  return(choose(n, k) * p^k * (1 - p)^(n - k))
+}
+
+lambda <- 3
+p <- 0.4
+n <- 10
+k <- 5
+
+#generare valori pentru axa x
+x <- seq(k, n)
+
+poisson_values <- sapply(x, function(i) poisson_pmf(lambda, i))
+geometric_values <- sapply(x, function(i) geometric_pmf(p, i))
+binomial_values <- sapply(x, function(i) binomial_pmf(n, p, i))
+
+#crearea datelor pentru grafic
+data <- data.frame(x = rep(x, 3),
+                   y = c(poisson_values, geometric_values, binomial_values),
+                   distribution = rep(c("Poisson", "Geometric", "Binomial"), each = length(x)))
+
+# Crearea graficului utilizând pachetul ggplot2
+ggplot(data, aes(x = x, y = y, color = distribution)) +
+  geom_line() +
+  labs(x = "k", y = "Probabilitate") +
+  scale_color_manual(values = c("red", "blue", "green")) +
+  theme_minimal()
+
+
+A1. b)
+p <- 0.4
+
+#functie de calcul p1(pt x impar)
+geometric_pmf <- function(p, k) {
+  return((1 - p)^(k - 1) * p)
+}
+
+#functie de calcul p2(x>=4)
+geometric_p_geq <- function(p, k) {
+  return(sum(geometric_pmf(p, seq(k, Inf))))
+}
+
+#functie p3(x<=20)
+geometric_p_leq <- function(p, k) {
+  return(sum(geometric_pmf(p, seq(1, k))))
+}
+
+#determinare probabilitati
+prob_impar <- geometric_pmf(p, 1) + sum(geometric_pmf(p, seq(3, Inf, by = 2)))
+prob_geq_4 <- geometric_p_geq(p, 4)
+prob_leq_20 <- geometric_p_leq(p, 20)
+
+cat("Probabilitatea P(X = impar):", prob_impar, "\n")
+cat("Probabilitatea P(X >= 4):", prob_geq_4, "\n")
+cat("Probabilitatea P(X <= 20):", prob_leq_20, "\n")
+
+A1. c)
+lambda <- 3
+
+#functie de calcul prob
+poisson_p_geq <- function(lambda, k) {
+  return(1 - sum(dpois(0:(k-1), lambda)))
+}
+
+# -1 e valoarea initiala
+k0 <- 1
+
+# Iteram pana cand probabilitatea devine mai mica decat 10^(-7)
+while (poisson_p_geq(lambda, k0) >= 10^(-7)) {
+  k0 <- k0 + 1
+}
+
+cat("Cea mai mica valoare a lui k0:", k0, "\n")
+
+
+A2. a)
+calculate_statistics <- function(name.txt) {
+  # citire date fisier
+  data <- read.table(name.txt, header = TRUE)
+  
+  # calcul medii
+  mean_p <- mean(data$P)
+  mean_s <- mean(data$S)
+  
+  # calcul deviatia standard
+  sd_p <- sd(data$P)
+  sd_s <- sd(data$S)
+  
+  # calcul cvartile
+  quartiles_p <- quantile(data$P, probs = c(0.25, 0.5, 0.75))
+  quartiles_s <- quantile(data$S, probs = c(0.25, 0.5, 0.75))
+  
+  cat("Statistici pentru esantionul P:\n")
+  cat("Mediana:", quartiles_p[2], "\n")
+  cat("Media:", mean_p, "\n")
+  cat("Deviatia standard:", sd_p, "\n")
+  cat("Cvartila Q1:", quartiles_p[1], "\n")
+  cat("Cvartila Q2:", quartiles_p[2], "\n")
+  cat("Cvartila Q3:", quartiles_p[3], "\n\n")
+  
+  cat("Statistici pentru esantionul S:\n")
+  cat("Mediana:", quartiles_s[2], "\n")
+  cat("Media:", mean_s, "\n")
+  cat("Deviatia standard:", sd_s, "\n")
+  cat("Cvartila Q1:", quartiles_s[1], "\n")
+  cat("Cvartila Q2:", quartiles_s[2], "\n")
+  cat("Cvartila Q3:", quartiles_s[3], "\n")
+}
+
+
+A2. b)
+remove_outliers <- function("note.txt", sample_name) {
+  
+  data <- read.table("note.txt", header = TRUE)
+  
+  # selectare esantion
+  sample <- data[["P"]]
+  
+  # metoda IQR pentru detectarea valorilor aberante
+  iqr <- quantile(sample, probs = c(0.25, 0.75))
+  iqr_range <- 1.5 * IQR(sample)
+  lower_bound <- iqr[1] - iqr_range
+  upper_bound <- iqr[2] + iqr_range
+  
+  # eliminarea valorilor aberante din esantion
+  sample_cleaned <- sample[sample >= lower_bound & sample <= upper_bound]
+  
+  return(sample_cleaned)
+}
+
+sample_P_cleaned <- remove_outliers("note.txt", "P")
+
+sample_S_cleaned <- remove_outliers("note.txt", "S")
+
+
+cat("Esantionul P fara valori aberante:", sample_P_cleaned, "\n")
+cat("Esantionul S fara valori aberante:", sample_S_cleaned, "\n")
+
+A2. c)
+plot_frequency_distribution <- function(filename, sample_name) {
+  data <- read.table(filename, header = TRUE)
+  
+  # selectare esantion
+  sample <- data[[sample_name]]
+  
+  # eliminarea valorilor aberante din esantion
+  sample_cleaned <- remove_outliers(filename, sample_name)
+  
+  # calculul frecventelor pentru fiecare interval
+  intervals <- seq(1, 10, by = 1)
+  frequencies <- table(cut(sample_cleaned, breaks = intervals, include.lowest = TRUE))
+  
+  # reprezentarea grafica
+  barplot(frequencies, main = "Distributia de frecvente", xlab = "Intervale", ylab = "Frecventa")
+}
+
+plot_frequency_distribution("note.txt", "P")
+
+plot_frequency_distribution("note.txt", "S")
