@@ -1,0 +1,62 @@
+B1
+verifica_LNM <- function(n, p) {
+  X <- rgeom(n, p)  # valori random
+  
+  media_empirica <- mean(X)  
+  
+  eroare_medie <- abs(media_empirica - 1/p)  # calculare eroare medie fata de valoarea exacta
+  
+  return(eroare_medie)
+}
+
+
+#Comparare rezultate cu valori exacte
+n_valori <- c(5000, 10000, 100000, 500000)
+p_valori <- c(0.2, 0.6, 0.6, 0.8)
+
+for (i in 1:length(n_valori)) {
+  n <- n_valori[i]
+  p <- p_valori[i]
+  
+  eroare <- verifica_LNM(n, p)
+  
+  cat("Pentru n =", n, "și p =", p, ", eroarea medie este:", eroare, "\n")
+}
+
+
+B2
+verifica_TLC <- function(n, r, N, z) {
+  X <- rt(n, r)  # valori random
+  
+  media_empirica <- mean(X) 
+  var_empirica <- var(X) 
+  
+  eroare_medie <- abs(media_empirica - 0)  # calculare eroarea medie fata de valoarea exacta (E[Xi] = 0)
+  eroare_var <- abs(var_empirica - r/(r-2))  # calculare eroarea variantei fata de valoarea exacta (Var[Xi] = r/(r-2))
+  
+  rezultat <- abs(pnorm(z) - pnorm(z, mean = 0, sd = sqrt(r/(r-2)/n)))  # determinare eroarea absoluta intre distributii
+  
+  return(rezultat)
+}
+
+B3
+aproximeaza_Moivre_Laplace <- function(n, p, h, k) {
+  mu <- n * p  # media variabilei binomiale
+  sigma <- sqrt(n * p * (1 - p))  # deviatia standard a variabilei binomiale
+  
+  z_h <- (h - mu) / sigma  # z-score pentru h
+  z_k <- (k - mu) / sigma  # z-score pentru k
+  
+  prob_aproximata <- pnorm(z_k, mean = 0, sd = 1) - pnorm(z_h, mean = 0, sd = 1)  # aproximam probabilitatea
+  
+  return(prob_aproximata)
+}
+# utilizare functie
+n <- 100  # n si p pentru variabila binomiala
+p <- 0.5  
+h <- 20   # limita inferioara
+k <- 40   # limita superioara
+
+prob_aprox <- aproximeaza_Moivre_Laplace(n, p, h, k)
+
+cat("Probabilitatea aproximată pentru", h, "<= X <", k, "este:", prob_aprox, "\n")
